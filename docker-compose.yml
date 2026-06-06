@@ -2,7 +2,7 @@ version: '3.8'
 
 services:
   mysql:
-    image: mysql:8.0
+    image: dockerproxy.net/library/mysql:8.0
     container_name: haircut-care-mysql
     environment:
       MYSQL_ROOT_PASSWORD: root123456
@@ -29,6 +29,9 @@ services:
     build:
       context: ./haircut-care-server
       dockerfile: Dockerfile
+      args:
+        MAVEN_IMAGE: dockerproxy.net/library/maven:3.8.6-openjdk-8-slim
+        JRE_IMAGE: dockerproxy.net/library/eclipse-temurin:8-jre-jammy
     container_name: haircut-care-server
     environment:
       DB_HOST: mysql
@@ -50,6 +53,9 @@ services:
     build:
       context: ./haircut-care-desk
       dockerfile: Dockerfile
+      args:
+        NODE_IMAGE: dockerproxy.net/library/node:18-alpine
+        NGINX_IMAGE: dockerproxy.net/library/nginx:alpine
     container_name: haircut-care-desk
     ports:
       - "3000:80"

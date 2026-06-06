@@ -149,7 +149,7 @@ public class ActivityReportController {
 
         response.setContentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
         response.setCharacterEncoding("utf-8");
-        String fileName = URLEncoder.encode("活动参与名单.xlsx", StandardCharsets.UTF_8).replaceAll("\\+", "%20");
+        String fileName = URLEncoder.encode("活动参与名单.xlsx", StandardCharsets.UTF_8.name()).replaceAll("\\+", "%20");
         response.setHeader("Content-disposition", "attachment;filename*=utf-8''" + fileName);
 
         EasyExcel.write(response.getOutputStream(), AppointmentExportDTO.class)
