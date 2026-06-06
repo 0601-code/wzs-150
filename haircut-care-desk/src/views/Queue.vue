@@ -92,6 +92,7 @@ const assignForm = reactive({
 
 const loadData = async () => {
   const params = filterStatus.value ? { status: filterStatus.value } : {}
+  params.needHomeService = false
   const list = await getAppointments(params)
   queueList.value = list
 }

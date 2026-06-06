@@ -23,17 +23,20 @@ public class AppointmentController {
     private final SysUserMapper sysUserMapper;
     private final BuildingMapper buildingMapper;
     private final VolunteerMapper volunteerMapper;
+    private final HomeServiceMapper homeServiceMapper;
 
     public AppointmentController(AppointmentMapper appointmentMapper,
                                   TimeSlotMapper timeSlotMapper,
                                   SysUserMapper sysUserMapper,
                                   BuildingMapper buildingMapper,
-                                  VolunteerMapper volunteerMapper) {
+                                  VolunteerMapper volunteerMapper,
+                                  HomeServiceMapper homeServiceMapper) {
         this.appointmentMapper = appointmentMapper;
         this.timeSlotMapper = timeSlotMapper;
         this.sysUserMapper = sysUserMapper;
         this.buildingMapper = buildingMapper;
         this.volunteerMapper = volunteerMapper;
+        this.homeServiceMapper = homeServiceMapper;
     }
 
     @GetMapping
@@ -134,6 +137,14 @@ public class AppointmentController {
         appointment.setQueueNumber(maxQueue.intValue() + 1);
 
         appointmentMapper.insert(appointment);
+
+        if (Boolean.TRUE.equals(appointment.getNeedHomeService())) {
+            HomeService homeService = new HomeService();
+            homeService.setAppointmentId(appointment.getId());
+            homeService.setStatus("PENDING");
+            homeServiceMapper.insert(homeService);
+        }
+
         return Result.success("预约成功", appointment);
     }
 

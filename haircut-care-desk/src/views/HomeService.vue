@@ -103,14 +103,20 @@ const scheduleForm = reactive({
 const loadData = async () => {
   const params = filterStatus.value ? { status: filterStatus.value } : {}
   const list = await getHomeServices(params)
-  serviceList.value = list.map(item => ({
-    ...item,
-    residentName: '居民',
-    address: '',
-    elderly: false,
-    disabled: false,
-    barberName: ''
-  }))
+  serviceList.value = list.map(item => {
+    let address = item.homeAddress || ''
+    if (item.buildingName && item.roomNumber) {
+      address = item.buildingName + ' ' + item.roomNumber + (address ? '，' + address : '')
+    }
+    return {
+      ...item,
+      residentName: item.residentName || '居民',
+      address: address,
+      elderly: item.elderly || false,
+      disabled: item.disabled || false,
+      barberName: item.barberName || ''
+    }
+  })
 }
 
 const loadVolunteers = async () => {

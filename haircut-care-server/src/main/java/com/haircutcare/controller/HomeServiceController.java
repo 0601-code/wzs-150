@@ -35,7 +35,7 @@ public class HomeServiceController {
     }
 
     @GetMapping
-    public Result<List<HomeService>> list(
+    public Result<List<Map<String, Object>>> list(
             @RequestParam(required = false) String status,
             @RequestParam(required = false) Long volunteerId) {
         LambdaQueryWrapper<HomeService> wrapper = new LambdaQueryWrapper<HomeService>()
@@ -49,7 +49,53 @@ public class HomeServiceController {
         }
 
         List<HomeService> list = homeServiceMapper.selectList(wrapper);
-        return Result.success(list);
+        List<Map<String, Object>> result = new java.util.ArrayList<>();
+
+        for (HomeService homeService : list) {
+            Map<String, Object> item = new HashMap<>();
+            item.put("id", homeService.getId());
+            item.put("appointmentId", homeService.getAppointmentId());
+            item.put("volunteerId", homeService.getVolunteerId());
+            item.put("scheduledDate", homeService.getScheduledDate());
+            item.put("scheduledTime", homeService.getScheduledTime());
+            item.put("status", homeService.getStatus());
+            item.put("createdAt", homeService.getCreatedAt());
+
+            Appointment appointment = appointmentMapper.selectById(homeService.getAppointmentId());
+            if (appointment != null) {
+                item.put("homeAddress", appointment.getHomeAddress());
+                item.put("serviceType", appointment.getServiceType());
+                SysUser resident = sysUserMapper.selectById(appointment.getResidentId());
+                if (resident != null) {
+                    item.put("residentName", resident.getRealName());
+                    item.put("residentPhone", resident.getPhone());
+                    item.put("elderly", resident.getElderly());
+                    item.put("disabled", resident.getDisabled());
+                    if (resident.getBuildingId() != null) {
+                        Building building = buildingMapper.selectById(resident.getBuildingId());
+                        if (building != null) {
+                            item.put("buildingName", building.getBuildingName());
+                            item.put("roomNumber", resident.getRoomNumber());
+                        }
+                    }
+                }
+            }
+
+            if (homeService.getVolunteerId() != null) {
+                Volunteer volunteer = volunteerMapper.selectById(homeService.getVolunteerId());
+                if (volunteer != null) {
+                    item.put("volunteerNo", volunteer.getVolunteerNo());
+                    SysUser barber = sysUserMapper.selectById(volunteer.getUserId());
+                    if (barber != null) {
+                        item.put("barberName", barber.getRealName());
+                    }
+                }
+            }
+
+            result.add(item);
+        }
+
+        return Result.success(result);
     }
 
     @GetMapping("/{id}")
