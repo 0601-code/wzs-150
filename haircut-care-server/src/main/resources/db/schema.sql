@@ -161,7 +161,7 @@ CREATE TABLE IF NOT EXISTS appointment (
 CREATE TABLE IF NOT EXISTS home_service (
     id BIGINT AUTO_INCREMENT PRIMARY KEY COMMENT '主键ID',
     appointment_id BIGINT NOT NULL COMMENT '预约ID',
-    volunteer_id BIGINT NOT NULL COMMENT '上门理发师ID',
+    volunteer_id BIGINT COMMENT '上门理发师ID',
     scheduled_date DATE COMMENT '计划上门日期',
     scheduled_time TIME COMMENT '计划上门时间',
     actual_arrival_at DATETIME COMMENT '实际到达时间',
