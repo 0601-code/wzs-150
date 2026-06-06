@@ -1,0 +1,67 @@
+version: '3.8'
+
+services:
+  mysql:
+    image: mysql:8.0
+    container_name: haircut-care-mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: root123456
+      MYSQL_DATABASE: haircut_care
+      TZ: Asia/Shanghai
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./haircut-care-server/src/main/resources/db/schema.sql:/docker-entrypoint-initdb.d/init.sql
+    command:
+      - --character-set-server=utf8mb4
+      - --collation-server=utf8mb4_unicode_ci
+      - --default-authentication-plugin=mysql_native_password
+    networks:
+      - haircut-care-network
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-uroot", "-proot123456"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  haircut-care-server:
+    build:
+      context: ./haircut-care-server
+      dockerfile: Dockerfile
+    container_name: haircut-care-server
+    environment:
+      DB_HOST: mysql
+      DB_PORT: 3306
+      DB_NAME: haircut_care
+      DB_USERNAME: root
+      DB_PASSWORD: root123456
+      TZ: Asia/Shanghai
+    ports:
+      - "8080:8080"
+    depends_on:
+      mysql:
+        condition: service_healthy
+    networks:
+      - haircut-care-network
+    restart: on-failure
+
+  haircut-care-desk:
+    build:
+      context: ./haircut-care-desk
+      dockerfile: Dockerfile
+    container_name: haircut-care-desk
+    ports:
+      - "3000:80"
+    depends_on:
+      - haircut-care-server
+    networks:
+      - haircut-care-network
+    restart: on-failure
+
+volumes:
+  mysql_data:
+
+networks:
+  haircut-care-network:
+    driver: bridge
